@@ -2,11 +2,25 @@
 #include <stdbool.h>
 #include "board.h"
 #include "hpm_uart_drv.h"
+#include "chry_ringbuffer.h"
 #include "csh.h"
 
 static chry_shell_t csh;
 static UART_Type *shell_uart = NULL;
 static bool login = false;
+static chry_ringbuffer_t shell_rb;
+static ATTR_PLACE_AT_NONCACHEABLE uint8_t mempool[256];
+
+void shell_uart_isr(void)
+{
+    uint8_t irq_id = uart_get_irq_id(shell_uart);
+    if (irq_id == uart_intr_id_rx_data_avail) {
+        while (uart_check_status(shell_uart, uart_stat_data_ready)) {
+            uint8_t byte = uart_read_byte(shell_uart);
+            chry_ringbuffer_write_byte(&shell_rb, byte);
+        }
+    }
+}
 
 static uint16_t csh_sput_cb(chry_readline_t *rl, const void *data, uint16_t size)
 {
@@ -23,15 +37,8 @@ static uint16_t csh_sput_cb(chry_readline_t *rl, const void *data, uint16_t size
 
 static uint16_t csh_sget_cb(chry_readline_t *rl, void *data, uint16_t size)
 {
-    uint16_t i;
     (void)rl;
-    for (i = 0; i < size; i++) {
-        if (status_success != uart_receive_byte(shell_uart, (uint8_t *)data + i)) {
-            break;
-        }
-    }
-
-    return i;
+    return chry_ringbuffer_read(&shell_rb, data, size);
 }
 
 int shell_init(UART_Type *uart, bool need_login)
@@ -39,6 +46,10 @@ int shell_init(UART_Type *uart, bool need_login)
     chry_shell_init_t csh_init;
 
     if (uart == NULL) {
+        return -1;
+    }
+
+    if (chry_ringbuffer_init(&shell_rb, mempool, sizeof(mempool))) {
         return -1;
     }
 
@@ -145,12 +156,12 @@ restart2:
     return 0;
 }
 
-void shell_uart_lock(void)
+void shell_lock(void)
 {
     chry_readline_erase_line(&csh.rl);
 }
 
-void shell_uart_unlock(void)
+void shell_unlock(void)
 {
     chry_readline_edit_refresh(&csh.rl);
 }

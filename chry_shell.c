@@ -571,13 +571,7 @@ int chry_shell_task_repl(chry_shell_t *csh)
         /*!< compile environment variable */
         for (uint8_t i = 0; i < *argc;) {
             if (argv[i][0] == '$') {
-                const char *param = NULL;
-                for (const chry_sysvar_t *var = csh->var_tbl_beg; var < csh->var_tbl_end; var++) {
-                    if (strcmp(argv[i] + 1, var->name) == 0) {
-                        param = var->var;
-                        break;
-                    }
-                }
+                const char *param = chry_shell_getenv(csh, argv[i] + 1);
 
                 if (param == NULL) {
                     memmove(&argv[i], &argv[i + 1], (*argc - i) * sizeof(char *));
@@ -983,4 +977,28 @@ int chry_shell_substitute_user(chry_shell_t *csh, uint8_t uid, const char *passw
     }
 
     return -1;
+}
+
+/*****************************************************************************
+* @brief        get environment variable
+* 
+* @param[in]    csh         shell instance
+* @param[in]    name        env name
+*
+* @retval                   env string pointer or NULL
+* @note                     env string maybe read-only
+*****************************************************************************/
+char *chry_shell_getenv(chry_shell_t *csh, const char *name)
+{
+    CHRY_SHELL_PARAM_CHECK(NULL != csh, NULL);
+
+    char *env = NULL;
+    for (const chry_sysvar_t *var = csh->var_tbl_beg; var < csh->var_tbl_end; var++) {
+        if (strcmp(name, var->name) == 0) {
+            env = var->var;
+            break;
+        }
+    }
+
+    return env;
 }

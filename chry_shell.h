@@ -185,6 +185,8 @@ int chry_shell_substitute_user(chry_shell_t *csh, uint8_t uid, const char *passw
 
 int csh_login(chry_shell_t *csh);
 
+char *chry_shell_getenv(chry_shell_t *csh, const char *name);
+
 #ifdef __cplusplus
 }
 #endif

@@ -11,13 +11,31 @@
 #include "hpm_mchtmr_drv.h"
 #include "shell.h"
 
+SDK_DECLARE_EXT_ISR_M(BOARD_CONSOLE_UART_IRQ, shell_uart_isr)
+
 int main(void)
 {
     board_init();
     board_init_led_pins();
 
-    // default password is : 12345678
-    shell_init(BOARD_CONSOLE_BASE, true);
+    uart_config_t shell_uart_config = { 0 };
+    uart_default_config(BOARD_CONSOLE_UART_BASE, &shell_uart_config);
+    shell_uart_config.src_freq_in_hz = clock_get_frequency(BOARD_CONSOLE_UART_CLK_NAME);
+    shell_uart_config.rx_fifo_level = uart_rx_fifo_trg_not_empty;
+
+    printf("init uart\r\n");
+    if (status_success != uart_init(BOARD_CONSOLE_UART_BASE, &shell_uart_config)) {
+        /* uart failed to be initialized */
+        printf("failed to initialize uart\r\n");
+        while (1)
+            ;
+    }
+
+    uart_enable_irq(BOARD_CONSOLE_UART_BASE, uart_intr_rx_data_avail_or_timeout);
+    intc_m_enable_irq_with_priority(BOARD_CONSOLE_UART_IRQ, 1);
+
+    /* default password is : 12345678 */
+    shell_init(BOARD_CONSOLE_UART_BASE, true);
 
     uint32_t freq = clock_get_frequency(clock_mchtmr0);
     uint64_t time = mchtmr_get_count(HPM_MCHTMR) / (freq / 1000);
@@ -28,9 +46,9 @@ int main(void)
         uint64_t now = mchtmr_get_count(HPM_MCHTMR) / (freq / 1000);
         if (now > time + 5000) {
             time = now;
-            shell_uart_lock();
+            shell_lock();
             printf("other task interval 5S\r\n");
-            shell_uart_unlock();
+            shell_unlock();
         }
     }
 
@@ -69,7 +87,7 @@ static int write_led(int argc, char **argv)
         return -1;
     }
 
-    board_led_write(atoi(argv[1]) == 0);
+    board_led_write(!board_get_led_gpio_off_level() ^ (atoi(argv[1]) == 0));
     return 0;
 }
 CSH_CMD_EXPORT(write_led, );

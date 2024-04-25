@@ -3,8 +3,9 @@
 
 cmake_minimum_required(VERSION 3.13)
 
-find_package(hpm-sdk REQUIRED HINTS $ENV{HPM_SDK_BASE})
+set(CONFIG_CHERRYRB 1)
 
+find_package(hpm-sdk REQUIRED HINTS $ENV{HPM_SDK_BASE})
 project(cherryshell)
 
 sdk_compile_options("-O2")
