@@ -23,19 +23,11 @@ extern "C" {
 #endif
 #endif
 
-/*!< check exec task and lnbuff static */
-#if (defined(CONFIG_CSH_EXEC_TASK) && CONFIG_CSH_EXEC_TASK)
+/*!< check multi-thread and lnbuff static */
+#if (defined(CONFIG_CSH_MULTI_THREAD) && CONFIG_CSH_MULTI_THREAD)
 #if !defined(CONFIG_CSH_LNBUFF_STATIC) || (CONFIG_CSH_LNBUFF_STATIC == 0)
-#error "CONFIG_CSH_LNBUFF_STATIC and CONFIG_CSH_EXEC_TASK cannot be enabled at the same time."
+#error "CONFIG_CSH_LNBUFF_STATIC and CONFIG_CSH_MULTI_THREAD cannot be enabled at the same time."
 #endif
-#endif
-
-/*!< check exec task and multi-thread */
-#if ((defined(CONFIG_CSH_EXEC_TASK) && CONFIG_CSH_EXEC_TASK) &&                \
-     (!defined(CONFIG_CSH_MULTI_THREAD) || (CONFIG_CSH_MULTI_THREAD == 0))) || \
-    ((defined(CONFIG_CSH_MULTI_THREAD) && CONFIG_CSH_MULTI_THREAD) &&          \
-     (!defined(CONFIG_CSH_EXEC_TASK) || (CONFIG_CSH_EXEC_TASK == 0)))
-#error "CONFIG_CSH_EXEC_TASK and CONFIG_CSH_MULTI_THREAD must be enabled at the same time."
 #endif
 
 #if ((defined(CONFIG_CSH_NOBLOCK) && CONFIG_CSH_NOBLOCK) && \
@@ -43,6 +35,10 @@ extern "C" {
 #error "CONFIG_CSH_LNBUFF_STATIC and CONFIG_CSH_NOBLOCK must be enabled at the same time."
 #endif
 
+/*!< signal count */
+#define CSH_SIGNAL_COUNT 7
+
+/*!< signal */
 #define CSH_SIGINT  1
 #define CSH_SIGQUIT 3
 #define CSH_SIGKILL 9
@@ -58,6 +54,12 @@ extern "C" {
 #define CSH_SIG_DFL ((chry_sighandler_t)0)  /* Default action */
 #define CSH_SIG_IGN ((chry_sighandler_t)1)  /* Ignore action */
 #define CSH_SIG_ERR ((chry_sighandler_t)-1) /* Error return */
+
+/*!< exec status */
+#define CSH_STATUS_EXEC_IDLE 0
+#define CSH_STATUS_EXEC_FIND 1
+#define CSH_STATUS_EXEC_PREP 2
+#define CSH_STATUS_EXEC_DONE 3
 
 typedef int (*chry_syscall_func_t)(int argc, char **argv);
 
@@ -98,10 +100,10 @@ typedef struct {
     const chry_sysvar_t *var_tbl_end; /*!< variable table end */
 
     /*!< execute section */
-#if defined(CONFIG_CSH_EXEC_TASK) && CONFIG_CSH_EXEC_TASK
-    int exec_code;                           /*!< exec return code */
-    int exec_argc;                           /*!< exec argument count */
-    char *exec_argv[CONFIG_CSH_MAX_ARG + 3]; /*!< exec argument value */
+#if defined(CONFIG_CSH_MULTI_THREAD) && CONFIG_CSH_MULTI_THREAD
+    int exec_code;                                 /*!< exec return code */
+    int exec_argc;                                 /*!< exec argument count */
+    const char *exec_argv[CONFIG_CSH_MAX_ARG + 3]; /*!< exec argument value */
 #else
     int exec_code; /*!< exec return code    */
     /*!< (on stack)     exec argument count */
@@ -123,9 +125,8 @@ typedef struct {
     const char *path;                      /*!< path               */
 #endif
 
-#if (!defined(CONFIG_CSH_MULTI_THREAD) || (CONFIG_CSH_MULTI_THREAD == 0)) && \
-    (defined(CONFIG_CSH_EXEC_TASK) && (CONFIG_CSH_EXEC_TASK))
-    jmp_buf env;
+#if defined(CONFIG_CSH_SIGNAL_HANDLER) && CONFIG_CSH_SIGNAL_HANDLER
+    void (*sighdl[CSH_SIGNAL_COUNT])(void *, int);
 #endif
 
     /*!< reserved section */
@@ -186,6 +187,12 @@ int chry_shell_substitute_user(chry_shell_t *csh, uint8_t uid, const char *passw
 int csh_login(chry_shell_t *csh);
 
 char *chry_shell_getenv(chry_shell_t *csh, const char *name);
+int chry_shell_execl(chry_shell_t *csh, const char *__path, const char *, ...);
+int chry_shell_execle(chry_shell_t *csh, const char *__path, const char *, ...);
+int chry_shell_execlp(chry_shell_t *csh, const char *__file, const char *, ...);
+int chry_shell_execv(chry_shell_t *csh, const char *__path, char *const __argv[]);
+int chry_shell_execve(chry_shell_t *csh, const char *__path, char *const __argv[], char *const __envp[]);
+int chry_shell_execvp(chry_shell_t *csh, const char *__file, char *const __argv[]);
 
 #ifdef __cplusplus
 }

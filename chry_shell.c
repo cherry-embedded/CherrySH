@@ -46,19 +46,11 @@
 #define CSH_PROMPT_SEG_HOST 2
 #define CSH_PROMPT_SEG_PATH 4
 
-/*!< exec status */
-#define CSH_STATUS_EXEC_IDLE 0
-#define CSH_STATUS_EXEC_FIND 1
-#define CSH_STATUS_EXEC_PREP 2
-#define CSH_STATUS_EXEC_EXEC 3
-
-/*!< signal count */
-#define CSH_SIGNAL_COUNT 7
-
 extern void chry_shell_port_default_handler(chry_shell_t *csh, int sig);
+extern int chry_shell_port_create_context(chry_shell_t *csh, int argc, const char **argv);
 extern int chry_shell_port_hash_strcmp(const char *hash, const char *str);
 
-#if defined(CONFIG_CSH_EXEC_TASK) && CONFIG_CSH_EXEC_TASK
+#if defined(CONFIG_CSH_MULTI_THREAD) && CONFIG_CSH_MULTI_THREAD
 static const uint8_t sigmap[CSH_SIGNAL_COUNT] = { CSH_SIGINT, CSH_SIGQUIT, CSH_SIGKILL, CSH_SIGTERM, CSH_SIGSTOP, CSH_SIGTSTP, CSH_SIGCONT };
 #if !defined(CONFIG_CSH_SIGNAL_HANDLER) || (CONFIG_CSH_SIGNAL_HANDLER == 0)
 static chry_sighandler_t sighdl[CSH_SIGNAL_COUNT] = {
@@ -102,12 +94,30 @@ __weak void chry_shell_port_default_handler(chry_shell_t *csh, int sig)
 }
 
 /*****************************************************************************
+* @brief        create context to execute
+* 
+* @param[in]    csh         shell instance
+* @param[in]    argc        argument count
+* @param[in]    argv        argument value
+*
+* @retval                   0:success -1:error
+*****************************************************************************/
+__weak int chry_shell_port_create_context(chry_shell_t *csh, int argc, const char **argv)
+{
+    (void)csh;
+    (void)argc;
+    (void)argv;
+    return -1;
+}
+
+/*****************************************************************************
 * @brief        conversion signum
 * 
 * @param[in]    signum      signal number
 *
 * @retval                   0<= signal index -1:not find
 *****************************************************************************/
+/*
 static int chry_shell_conversion_signum(int signum)
 {
     int sigidx = -1;
@@ -121,7 +131,7 @@ static int chry_shell_conversion_signum(int signum)
 
     return sigidx;
 }
-
+*/
 #endif
 
 /*****************************************************************************
@@ -283,41 +293,60 @@ static uint8_t chry_shell_completion_callback(chry_readline_t *rl, char *pre, ui
 static int chry_shell_user_callback(chry_readline_t *rl, uint8_t exec)
 {
     chry_shell_t *csh = chry_shell_container_of(rl, chry_shell_t, rl);
-    volatile uint8_t *pexec = (volatile uint8_t *)&csh->exec;
-    volatile int *pcode = (volatile int *)&csh->exec_code;
-
+    (void)csh;
     /*!< user event callback will not output newline automatically */
 
     switch (exec) {
         case CHRY_READLINE_EXEC_EOF:
             chry_readline_newline(rl);
             break;
+
+#if defined(CONFIG_CSH_MULTI_THREAD) && CONFIG_CSH_MULTI_THREAD
+#if defined(CONFIG_CSH_SIGNAL_HANDLER) && CONFIG_CSH_SIGNAL_HANDLER
         case CHRY_READLINE_EXEC_SIGINT:
-            *pcode = 0;
-            *pexec = CSH_STATUS_EXEC_IDLE;
-            rl->sput(rl, "^SIGINT" CONFIG_CSH_NEWLINE, sizeof("^SIGINT" CONFIG_CSH_NEWLINE) - 1);
-#if defined(CONFIG_CSH_EXEC_TASK) && CONFIG_CSH_EXEC_TASK
-            chry_readline_auto_refresh(rl, true);
-            chry_readline_edit_refresh(rl);
-            chry_readline_ignore(rl, false);
-#endif
-            break;
+            csh->sighdl[0](csh, CSH_SIGINT);
+            return 0;
         case CHRY_READLINE_EXEC_SIGQUIT:
-            *pcode = 0;
-            *pexec = CSH_STATUS_EXEC_IDLE;
-            rl->sput(rl, "^SIGQUIT" CONFIG_CSH_NEWLINE, sizeof("^SIGQUIT" CONFIG_CSH_NEWLINE) - 1);
-#if defined(CONFIG_CSH_EXEC_TASK) && CONFIG_CSH_EXEC_TASK
-            chry_readline_auto_refresh(rl, true);
-            chry_readline_edit_refresh(rl);
-            chry_readline_ignore(rl, false);
+            csh->sighdl[1](csh, CSH_SIGQUIT);
+            return 0;
+        case CHRY_READLINE_EXEC_SIGCONT:
+            csh->sighdl[6](csh, CSH_SIGCONT);
+            return 1;
+        case CHRY_READLINE_EXEC_SIGSTOP:
+            csh->sighdl[4](csh, CSH_SIGSTOP);
+            return 1;
+        case CHRY_READLINE_EXEC_SIGTSTP:
+            csh->sighdl[5](csh, CSH_SIGTSTP);
+            return 1;
+#else
+        case CHRY_READLINE_EXEC_SIGINT:
+            sighdl[0](csh, CSH_SIGINT);
+            return 0;
+        case CHRY_READLINE_EXEC_SIGQUIT:
+            sighdl[1](csh, CSH_SIGQUIT);
+            return 0;
+        case CHRY_READLINE_EXEC_SIGCONT:
+            sighdl[6](csh, CSH_SIGCONT);
+            return 1;
+        case CHRY_READLINE_EXEC_SIGSTOP:
+            sighdl[4](csh, CSH_SIGSTOP);
+            return 1;
+        case CHRY_READLINE_EXEC_SIGTSTP:
+            sighdl[5](csh, CSH_SIGTSTP);
+            return 1;
 #endif
-            break;
+#else
+        case CHRY_READLINE_EXEC_SIGINT:
+            return 0;
+        case CHRY_READLINE_EXEC_SIGQUIT:
+            return 0;
         case CHRY_READLINE_EXEC_SIGCONT:
             return 1;
         case CHRY_READLINE_EXEC_SIGSTOP:
             return 1;
         case CHRY_READLINE_EXEC_SIGTSTP:
             return 1;
+#endif
         case CHRY_READLINE_EXEC_F1 ... CHRY_READLINE_EXEC_F12:
             chry_readline_newline(rl);
             break;
@@ -394,6 +423,7 @@ int chry_shell_init(chry_shell_t *csh, const chry_shell_init_t *init)
 #endif
 
     csh->exec_code = 0;
+    csh->exec = CSH_STATUS_EXEC_IDLE;
 
     /*!< set default user id */
     if ((init->uid >= CONFIG_CSH_MAX_USER) || (init->uid < 0)) {
@@ -427,8 +457,6 @@ int chry_shell_init(chry_shell_t *csh, const chry_shell_init_t *init)
     csh->path = "/";
 #endif
 
-    csh->exec = CSH_STATUS_EXEC_IDLE;
-
     csh->data = NULL;
     csh->user_data = init->user_data;
 
@@ -461,47 +489,18 @@ int chry_shell_init(chry_shell_t *csh, const chry_shell_init_t *init)
 *****************************************************************************/
 static void chry_shell_task_exec_internal(chry_shell_t *csh, int argc, const char **argv)
 {
-    volatile uint8_t *pexec = (volatile uint8_t *)&csh->exec;
-    volatile int *pcode = (volatile int *)&csh->exec_code;
+    volatile uint8_t *pexec = (void *)&csh->exec;
+    volatile int *pcode = (void *)&csh->exec_code;
 
     /*!< if stage find */
     if (*pexec == CSH_STATUS_EXEC_FIND) {
         /*!< stage prepare */
         *pexec = CSH_STATUS_EXEC_PREP;
 
-#if defined(CONFIG_CSH_EXEC_TASK) && CONFIG_CSH_EXEC_TASK && \
-    (!defined(CONFIG_CSH_MULTI_THREAD) || (CONFIG_CSH_MULTI_THREAD == 0))
-        int ret = setjmp(csh->env);
-
-        if (0 == ret) {
-            /*!< stage execute */
-            *pexec = CSH_STATUS_EXEC_EXEC;
-            *pcode = ((chry_syscall_func_t)argv[argc + 2])(argc, (void *)argv);
-        } else {
-            int sigidx = chry_shell_conversion_signum(ret);
-
-            if (sigidx == -1) {
-                /*!< if not found, call default handler */
-                chry_shell_port_default_handler(csh, -1);
-            } else {
-                /*!< call handler */
-                sighdl[sigidx](csh, sigidx);
-            }
-        }
-
-        /*!< reset signal handler */
-        for (uint8_t i = 0; i < CSH_SIGNAL_COUNT; i++) {
-            sighdl[i] = chry_shell_port_default_handler;
-        }
-
-        /*!< TODO should call refresh in SVC */
-
-#else
         *pcode = ((chry_syscall_func_t)argv[argc + 2])(argc, (void *)argv);
-#endif
 
-        /*!< stage idle */
-        *pexec = CSH_STATUS_EXEC_IDLE;
+        /*!< stage done */
+        *pexec = CSH_STATUS_EXEC_DONE;
     }
 }
 
@@ -515,8 +514,8 @@ void chry_shell_task_exec(chry_shell_t *csh)
 {
     CHRY_SHELL_PARAM_CHECK(NULL != csh, );
     (void)csh;
-#if defined(CONFIG_CSH_EXEC_TASK) && CONFIG_CSH_EXEC_TASK
-    chry_shell_task_exec_internal(csh, csh->exec_argc, csh->exec_argv);
+#if defined(CONFIG_CSH_MULTI_THREAD) && CONFIG_CSH_MULTI_THREAD
+    chry_shell_task_exec_internal(csh, csh->exec_argc, &csh->exec_argv[0]);
 #endif
 }
 
@@ -555,8 +554,11 @@ int chry_shell_task_repl(chry_shell_t *csh)
     } else if (*csh_linesize) {
         int *argc;
         const char **argv;
+        volatile uint8_t *pexec = (void *)&csh->exec;
+        volatile uint32_t *pcode = (void *)&csh->exec_code;
+        *pcode = 0xBAD2BE8E; /*!< a magic number */
 
-#if defined(CONFIG_CSH_EXEC_TASK) && CONFIG_CSH_EXEC_TASK
+#if defined(CONFIG_CSH_MULTI_THREAD) && CONFIG_CSH_MULTI_THREAD
         argc = &csh->exec_argc;
         argv = &csh->exec_argv[0];
 #else
@@ -672,17 +674,39 @@ int chry_shell_task_repl(chry_shell_t *csh)
         found:
 
             if (NULL == argv[*argc + 2]) {
+                *pexec = CSH_STATUS_EXEC_IDLE;
+
                 csh->rl.sput(&csh->rl, argv[0], strlen(argv[0]));
                 csh->rl.sput(&csh->rl, ": command not found" CONFIG_CSH_NEWLINE CONFIG_CSH_NEWLINE,
                              19 + (sizeof(CONFIG_CSH_NEWLINE) ? (sizeof(CONFIG_CSH_NEWLINE) - 1) * 2 : 0));
-                csh->exec = CSH_STATUS_EXEC_IDLE;
             } else {
-                *((volatile uint8_t *)&csh->exec) = CSH_STATUS_EXEC_FIND;
-#if defined(CONFIG_CSH_EXEC_TASK) && CONFIG_CSH_EXEC_TASK
-                chry_readline_ignore(&csh->rl, true);
+#if defined(CONFIG_CSH_MULTI_THREAD) && CONFIG_CSH_MULTI_THREAD
+                *pexec = CSH_STATUS_EXEC_FIND;
+
+                chry_readline_ignore(&csh->rl, true); /*!< accepts only signal inputs */
                 chry_readline_auto_refresh(&csh->rl, false);
+
+                /*!< reset signal handler to default */
+                for (uint8_t i = 0; i < CSH_SIGNAL_COUNT; i++) {
+#if defined(CONFIG_CSH_SIGNAL_HANDLER) && CONFIG_CSH_SIGNAL_HANDLER
+                    csh->sighdl[i] = chry_shell_port_default_handler;
 #else
+                    sighdl[i] = chry_shell_port_default_handler;
+#endif
+                }
+
+                /*!< try to create execute context */
+                if (0 != chry_shell_port_create_context(csh, *argc, argv)) {
+                    *pexec = CSH_STATUS_EXEC_IDLE;
+
+                    csh->rl.sput(&csh->rl, argv[0], strlen(argv[0]));
+                    csh->rl.sput(&csh->rl, ": context creation error" CONFIG_CSH_NEWLINE CONFIG_CSH_NEWLINE,
+                                 24 + (sizeof(CONFIG_CSH_NEWLINE) ? (sizeof(CONFIG_CSH_NEWLINE) - 1) * 2 : 0));
+                }
+#else
+                *pexec = CSH_STATUS_EXEC_FIND;
                 chry_shell_task_exec_internal(csh, *argc, argv);
+                *pexec = CSH_STATUS_EXEC_IDLE;
 #endif
             }
         }

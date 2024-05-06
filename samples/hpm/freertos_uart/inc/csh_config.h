@@ -74,7 +74,7 @@
 #define CONFIG_CSH_LNBUFF_SIZE 256
 
 /*!< multi-thread mode */
-#define CONFIG_CSH_MULTI_THREAD 0
+#define CONFIG_CSH_MULTI_THREAD 1
 
 /*!< independent signal handler (for multi instances) */
 #define CONFIG_CSH_SIGNAL_HANDLER 0

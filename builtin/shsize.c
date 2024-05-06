@@ -8,16 +8,41 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 #include "csh.h"
 
 /*!< shsize */
 static int shsize(int argc, char **argv)
 {
     chry_shell_t *csh = (void *)argv[argc + 1];
+    char *prgname = argv[0];
 
-    chry_readline_detect(&csh->rl);
+    if ((argc == 2) && !strcmp(argv[1], "--update")) {
+        if (5 != csh->rl.sput(&csh->rl, "\e[18t", 5)) {
+            printf("Failed to request update\r\n");
+            return -1;
+        }
+        return 0;
+    } else if ((argc == 4) && !strcmp(argv[1], "--config")) {
+        int row = atoi(argv[2]);
+        int col = atoi(argv[3]);
+        if (row > 10 && row < 4096) {
+            csh->rl.term.row = row;
+        } else {
+            printf("Illegal row %d\r\n", row);
+        }
+        if (col > 10 && col < 4096) {
+            csh->rl.term.col = col;
+        } else {
+            printf("Illegal col %d\r\n", col);
+        }
+    } else if (argc == 1) {
+    } else {
+        printf("Usage: %s [--update | --config <row> <col>\r\n", prgname);
+        return 0;
+    }
 
-    printf("%d %d\r\n", csh->rl.term.row, csh->rl.term.col);
+    printf("Window config to row:%d col:%d\r\n", csh->rl.term.row, csh->rl.term.col);
 
     return 0;
 }

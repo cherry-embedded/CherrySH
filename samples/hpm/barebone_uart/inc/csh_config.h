@@ -73,9 +73,6 @@
 /*!< linebuffer size (valid only if lnbuff on stack) */
 #define CONFIG_CSH_LNBUFF_SIZE 256
 
-/*!< execute task in chry_shell_task_exec() */
-#define CONFIG_CSH_EXEC_TASK 0
-
 /*!< multi-thread mode */
 #define CONFIG_CSH_MULTI_THREAD 0
 

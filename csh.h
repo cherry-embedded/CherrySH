@@ -120,11 +120,6 @@
 #define CONFIG_CSH_LNBUFF_SIZE 256
 #endif
 
-/*!< execute task in chry_shell_task_exec() */
-#ifndef CONFIG_CSH_EXEC_TASK
-#define CONFIG_CSH_EXEC_TASK 0
-#endif
-
 /*!< multi-thread mode */
 #ifndef CONFIG_CSH_MULTI_THREAD
 #define CONFIG_CSH_MULTI_THREAD 0
