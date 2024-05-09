@@ -19,7 +19,7 @@ static int shsize(int argc, char **argv)
 
     if ((argc == 2) && !strcmp(argv[1], "--update")) {
         if (5 != csh->rl.sput(&csh->rl, "\e[18t", 5)) {
-            printf("Failed to request update\r\n");
+            csh_printf(csh, "Failed to request update\r\n");
             return -1;
         }
         return 0;
@@ -29,20 +29,20 @@ static int shsize(int argc, char **argv)
         if (row > 10 && row < 4096) {
             csh->rl.term.row = row;
         } else {
-            printf("Illegal row %d\r\n", row);
+            csh_printf(csh, "Illegal row %d\r\n", row);
         }
         if (col > 10 && col < 4096) {
             csh->rl.term.col = col;
         } else {
-            printf("Illegal col %d\r\n", col);
+            csh_printf(csh, "Illegal col %d\r\n", col);
         }
     } else if (argc == 1) {
     } else {
-        printf("Usage: %s [--update | --config <row> <col>\r\n", prgname);
+        csh_printf(csh, "Usage: %s [--update | --config <row> <col>\r\n", prgname);
         return 0;
     }
 
-    printf("Window config to row:%d col:%d\r\n", csh->rl.term.row, csh->rl.term.col);
+    csh_printf(csh, "Window config to row:%d col:%d\r\n", csh->rl.term.row, csh->rl.term.col);
 
     return 0;
 }

@@ -140,6 +140,11 @@
 #define CONFIG_CSH_SYMTAB 1
 #endif
 
+/*!< print buffer size */
+#ifndef CONFIG_CSH_PRINT_BUFFER_SIZE
+#define CONFIG_CSH_PRINT_BUFFER_SIZE 512
+#endif
+
 #define CONFIG_READLINE_DEBUG          CONFIG_CSH_DEBUG
 #define CONFIG_READLINE_DFTROW         CONFIG_CSH_DFTROW
 #define CONFIG_READLINE_DFTCOL         CONFIG_CSH_DFTCOL
@@ -246,7 +251,7 @@
 
 /*****************************************************************************
 * @brief        export csh command (default path "/bin")
-* 
+*
 * @param[in]    func        function pointer
 * @param[in]    _dummy      (compatible descriptions)
 *
@@ -256,7 +261,7 @@
 
 /*****************************************************************************
 * @brief        export csh command with alias  (default path "/bin" )
-* 
+*
 * @param[in]    func        function pointer
 * @param[in]    name        command name
 * @param[in]    _dummy      (compatible descriptions)
@@ -267,7 +272,7 @@
 
 /*****************************************************************************
 * @brief        export csh command (default path "/sbin")
-* 
+*
 * @param[in]    func        function pointer
 * @param[in]    _dummy      (compatible descriptions)
 *
@@ -277,7 +282,7 @@
 
 /*****************************************************************************
 * @brief        export csh command with alias  (default path "/sbin" )
-* 
+*
 * @param[in]    func        function pointer
 * @param[in]    name        command name
 * @param[in]    _dummy      (compatible descriptions)
@@ -288,9 +293,9 @@
 
 /*****************************************************************************
 * @brief        export csh command with path
-* 
+*
 * @param[in]    func        function pointer
-* @param[in]    name        command name 
+* @param[in]    name        command name
 * @param[in]    path        command path
 *
 * @example      CSH_CMD_EXPORT_PATH(test_func1, test1, "/bin");       // ok
@@ -304,7 +309,7 @@
 
 /*****************************************************************************
 * @brief        export csh read-only variable
-* 
+*
 * @param[in]    var         variable
 * @param[in]    name        variable name
 * @param[in]    size        variable size
@@ -315,7 +320,7 @@
 
 /*****************************************************************************
 * @brief        export csh write-only variable
-* 
+*
 * @param[in]    var         variable
 * @param[in]    name        variable name
 * @param[in]    size        variable size
@@ -326,7 +331,7 @@
 
 /*****************************************************************************
 * @brief        export csh read-write variable
-* 
+*
 * @param[in]    var         variable
 * @param[in]    name        variable name
 * @param[in]    size        variable size

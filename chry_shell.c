@@ -51,7 +51,7 @@ extern int chry_shell_port_create_context(chry_shell_t *csh, int argc, const cha
 extern int chry_shell_port_hash_strcmp(const char *hash, const char *str);
 
 #if defined(CONFIG_CSH_MULTI_THREAD) && CONFIG_CSH_MULTI_THREAD
-static const uint8_t sigmap[CSH_SIGNAL_COUNT] = { CSH_SIGINT, CSH_SIGQUIT, CSH_SIGKILL, CSH_SIGTERM, CSH_SIGSTOP, CSH_SIGTSTP, CSH_SIGCONT };
+/* static const uint8_t sigmap[CSH_SIGNAL_COUNT] = { CSH_SIGINT, CSH_SIGQUIT, CSH_SIGKILL, CSH_SIGTERM, CSH_SIGSTOP, CSH_SIGTSTP, CSH_SIGCONT }; */
 #if !defined(CONFIG_CSH_SIGNAL_HANDLER) || (CONFIG_CSH_SIGNAL_HANDLER == 0)
 static chry_sighandler_t sighdl[CSH_SIGNAL_COUNT] = {
     chry_shell_port_default_handler,
@@ -66,7 +66,7 @@ static chry_sighandler_t sighdl[CSH_SIGNAL_COUNT] = {
 
 /*****************************************************************************
 * @brief        default signal handler
-* 
+*
 * @param[in]    signum      signal number
 *
 *****************************************************************************/
@@ -95,7 +95,7 @@ __weak void chry_shell_port_default_handler(chry_shell_t *csh, int sig)
 
 /*****************************************************************************
 * @brief        create context to execute
-* 
+*
 * @param[in]    csh         shell instance
 * @param[in]    argc        argument count
 * @param[in]    argv        argument value
@@ -112,7 +112,7 @@ __weak int chry_shell_port_create_context(chry_shell_t *csh, int argc, const cha
 
 /*****************************************************************************
 * @brief        conversion signum
-* 
+*
 * @param[in]    signum      signal number
 *
 * @retval                   0<= signal index -1:not find
@@ -136,7 +136,7 @@ static int chry_shell_conversion_signum(int signum)
 
 /*****************************************************************************
 * @brief        hash str then compare
-* 
+*
 * @param[in]    hash        hash
 * @param[in]    str         string
 *
@@ -151,7 +151,7 @@ __weak int chry_shell_port_hash_strcmp(const char *hash, const char *str)
 #if defined(CONFIG_CSH_COMPLETION) && CONFIG_CSH_COMPLETION
 /*****************************************************************************
 * @brief        completion callback
-* 
+*
 * @param[in]    rl          readline instance
 * @param[in]    pre         pre string
 * @param[in]    size        strlen(pre)
@@ -284,7 +284,7 @@ static uint8_t chry_shell_completion_callback(chry_readline_t *rl, char *pre, ui
 #if defined(CONFIG_CSH_USER_CALLBACK) && CONFIG_CSH_USER_CALLBACK
 /*****************************************************************************
 * @brief        user callback
-* 
+*
 * @param[in]    rl          readline instance
 * @param[in]    exec        exec code
 *
@@ -366,7 +366,7 @@ static int chry_shell_user_callback(chry_readline_t *rl, uint8_t exec)
 
 /*****************************************************************************
 * @brief        init shell
-* 
+*
 * @param[in]    csh         shell instance
 * @param[in]    init        init config
 *
@@ -483,7 +483,7 @@ int chry_shell_init(chry_shell_t *csh, const chry_shell_init_t *init)
 
 /*****************************************************************************
 * @brief        execute task internal
-* 
+*
 * @param[in]    csh         shell instance
 *
 *****************************************************************************/
@@ -506,7 +506,7 @@ static void chry_shell_task_exec_internal(chry_shell_t *csh, int argc, const cha
 
 /*****************************************************************************
 * @brief        execute task
-* 
+*
 * @param[in]    csh         shell instance
 *
 *****************************************************************************/
@@ -521,7 +521,7 @@ void chry_shell_task_exec(chry_shell_t *csh)
 
 /*****************************************************************************
 * @brief        read eval print loop task
-* 
+*
 * @param[in]    csh         shell instance
 *
 * @retval                   0:Success -1:Error 1:Continue
@@ -719,7 +719,7 @@ int chry_shell_task_repl(chry_shell_t *csh)
 
 /*****************************************************************************
 * @brief        parse line to argc,argv[]
-* 
+*
 * @param[in]    line        read line
 * @param[in]    linesize    strlen(line)
 * @param[out]   argv        argument value
@@ -777,7 +777,7 @@ int chry_shell_parse(char *line, uint32_t linesize, const char **argv, uint8_t a
 
 /*****************************************************************************
 * @brief        resolve path to argc,argv[],argl[]
-* 
+*
 * @param[in]    cur         current path
 * @param[in]    path        path
 * @param[out]   argv        argument value (path segment)
@@ -867,7 +867,7 @@ resolve:
 
 /*****************************************************************************
 * @brief        set host
-* 
+*
 * @param[in]    csh         shell instance
 * @param[in]    host        pointer of host
 *
@@ -889,7 +889,7 @@ int chry_shell_set_host(chry_shell_t *csh, const char *host)
 
 /*****************************************************************************
 * @brief        set user
-* 
+*
 * @param[in]    csh         shell instance
 * @param[in]    uid         user id
 * @param[in]    user        pointer of user
@@ -923,9 +923,9 @@ int chry_shell_set_user(chry_shell_t *csh, uint8_t uid, const char *user, const 
 
 /*****************************************************************************
 * @brief        set path
-* 
+*
 * @param[in]    csh         shell instance
-* @param[in]    size        strlen(path) + 1, include \0. 
+* @param[in]    size        strlen(path) + 1, include \0.
 *                           ignore when CONFIG_CSH_MAXLEN_PATH = 0
 * @param[in]    path        shell instance
 *
@@ -956,9 +956,9 @@ int chry_shell_set_path(chry_shell_t *csh, uint8_t size, const char *path)
 
 /*****************************************************************************
 * @brief        get path
-* 
+*
 * @param[in]    csh         shell instance
-* @param[in]    size        path buffer size 
+* @param[in]    size        path buffer size
 * @param[in]    path        path buffer
 *
 *****************************************************************************/
@@ -977,7 +977,7 @@ void chry_shell_get_path(chry_shell_t *csh, uint8_t size, char *path)
 
 /*****************************************************************************
 * @brief        substitute user
-* 
+*
 * @param[in]    csh         shell instance
 * @param[in]    uid         user id
 * @param[in]    password    password
@@ -1005,7 +1005,7 @@ int chry_shell_substitute_user(chry_shell_t *csh, uint8_t uid, const char *passw
 
 /*****************************************************************************
 * @brief        get environment variable
-* 
+*
 * @param[in]    csh         shell instance
 * @param[in]    name        env name
 *
@@ -1025,4 +1025,29 @@ char *chry_shell_getenv(chry_shell_t *csh, const char *name)
     }
 
     return env;
+}
+
+/*****************************************************************************
+* @brief        print from shell
+*
+* @param[in]    csh         shell instance
+* @param[in]    fmt         string format
+*
+* @retval                   size that has printed
+*****************************************************************************/
+int csh_printf(chry_shell_t *csh, const char *fmt, ...)
+{
+  int     n;
+  char  shell_printf_buffer[CONFIG_CSH_PRINT_BUFFER_SIZE];
+  va_list args;
+
+  va_start (args, fmt);
+  n = vsnprintf(shell_printf_buffer, sizeof(shell_printf_buffer), fmt, args);
+  if (n > (int)sizeof(shell_printf_buffer)) {
+    csh->rl.sput(&csh->rl, shell_printf_buffer, sizeof(shell_printf_buffer));
+  } else if (n > 0) {
+    csh->rl.sput(&csh->rl, shell_printf_buffer, n);
+  }
+  va_end(args);
+  return n;
 }

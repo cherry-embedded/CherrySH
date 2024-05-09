@@ -184,8 +184,6 @@ int chry_shell_set_path(chry_shell_t *csh, uint8_t size, const char *path);
 void chry_shell_get_path(chry_shell_t *csh, uint8_t size, char *path);
 int chry_shell_substitute_user(chry_shell_t *csh, uint8_t uid, const char *password);
 
-int csh_login(chry_shell_t *csh);
-
 char *chry_shell_getenv(chry_shell_t *csh, const char *name);
 int chry_shell_execl(chry_shell_t *csh, const char *__path, const char *, ...);
 int chry_shell_execle(chry_shell_t *csh, const char *__path, const char *, ...);
@@ -193,6 +191,10 @@ int chry_shell_execlp(chry_shell_t *csh, const char *__file, const char *, ...);
 int chry_shell_execv(chry_shell_t *csh, const char *__path, char *const __argv[]);
 int chry_shell_execve(chry_shell_t *csh, const char *__path, char *const __argv[], char *const __envp[]);
 int chry_shell_execvp(chry_shell_t *csh, const char *__file, char *const __argv[]);
+
+int csh_printf(chry_shell_t *csh, const char *fmt, ...);
+
+int csh_login(chry_shell_t *csh);
 
 #ifdef __cplusplus
 }

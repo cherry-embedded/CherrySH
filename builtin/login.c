@@ -35,8 +35,8 @@ int csh_login(chry_shell_t *csh)
 #endif
 
 retry:
-    printf("login as: %s\r\n", csh->user[csh->uid]);
-    printf("%s@%s's password:\r\n", csh->user[csh->uid], csh->host);
+    csh_printf(csh, "login as: %s\r\n", csh->user[csh->uid]);
+    csh_printf(csh, "%s@%s's password:\r\n", csh->user[csh->uid], csh->host);
     chry_readline_mask(&csh->rl, true);
     first = csh->rl.prompt[0];
     csh->rl.prompt[0] = '\0';
@@ -61,11 +61,11 @@ restore:
     } else {
         ret = chry_shell_substitute_user(csh, csh->uid, password);
         if (ret != 0) {
-            printf("\e[31mincorrect password\e[0m\r\n\r\n");
+            csh_printf(csh, "\e[31mincorrect password\e[0m\r\n\r\n");
             goto retry;
         }
 
-        printf("welcome to cherry shell\r\n");
+        csh_printf(csh, "welcome to cherry shell\r\n");
 
         return ret;
     }

@@ -108,14 +108,15 @@ static void task_start(void *param)
 
 static int test(int argc, char **argv)
 {
-    printf("test: \r\n");
-    printf("argc=<%d>\r\n", argc);
+	chry_shell_t *csh = (void *)argv[argc + 1];
+    csh_printf(csh, "test: \r\n");
+    csh_printf(csh, "argc=<%d>\r\n", argc);
     for (uint8_t i = 0; i < argc; i++) {
-        printf("argv[%d]:0x%08x=<%s>\r\n", i, (uintptr_t)argv[i], argv[i]);
+        csh_printf(csh, "argv[%d]:0x%08x=<%s>\r\n", i, (uintptr_t)argv[i], argv[i]);
     }
 
-    printf("argv[%d]=<0x%08x>\r\n", argc, argv[argc]);
-    printf("argv[%d]=<0x%08x>\r\n\r\n", argc + 1, argv[argc + 1]);
+    csh_printf(csh, "argv[%d]=<0x%08x>\r\n", argc, argv[argc]);
+    csh_printf(csh, "argv[%d]=<0x%08x>\r\n\r\n", argc + 1, argv[argc + 1]);
 
     return 0;
 }
@@ -132,9 +133,10 @@ CSH_CMD_EXPORT(toggle_led, );
 
 static int write_led(int argc, char **argv)
 {
+	chry_shell_t *csh = (void *)argv[argc + 1];
     if (argc < 2) {
-        printf("usage: write_led <status>\r\n\r\n");
-        printf("  status    0 or 1\r\n\r\n");
+        csh_printf(csh, "usage: write_led <status>\r\n\r\n");
+        csh_printf(csh, "  status    0 or 1\r\n\r\n");
         return -1;
     }
 

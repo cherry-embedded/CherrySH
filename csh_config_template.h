@@ -85,4 +85,7 @@
 /*!< enable macro export symbol table */
 #define CONFIG_CSH_SYMTAB 1
 
+/*!< print buffer size */
+#define CONFIG_CSH_PRINT_BUFFER_SIZE 512
+
 #endif

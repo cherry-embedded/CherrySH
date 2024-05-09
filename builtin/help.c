@@ -24,7 +24,7 @@ static int help(int argc, char **argv)
     }
 
     if (enable_function) {
-        printf("total function %d\r\n",
+        csh_printf(csh, "total function %d\r\n",
                ((uintptr_t)csh->cmd_tbl_end - (uintptr_t)csh->cmd_tbl_beg) / sizeof(chry_syscall_t));
     }
 
@@ -37,25 +37,25 @@ static int help(int argc, char **argv)
     for (const chry_syscall_t *call = csh->cmd_tbl_beg; call < csh->cmd_tbl_end; call++) {
         uint16_t len = strlen(call->name);
 
-        printf("  \e[32m%s\e[m", call->name);
+        csh_printf(csh, "  \e[32m%s\e[m", call->name);
 
         for (int k = len; k < longest_name; k++) {
-            printf(" ");
+            csh_printf(csh, " ");
         }
 
-        printf(" -> ");
+        csh_printf(csh, " -> ");
 
-        printf(call->path);
+        csh_printf(csh, call->path);
 
-        printf("\r\n");
+        csh_printf(csh, "\r\n");
     }
 
     if (enable_variable) {
         if (enable_function) {
-            printf("\r\n");
+            csh_printf(csh, "\r\n");
         }
 
-        printf("total variable %d\r\n",
+        csh_printf(csh, "total variable %d\r\n",
                ((uintptr_t)csh->var_tbl_end - (uintptr_t)csh->var_tbl_beg) / sizeof(chry_sysvar_t));
     }
 
@@ -68,15 +68,15 @@ static int help(int argc, char **argv)
     for (const chry_sysvar_t *var = csh->var_tbl_beg; var < csh->var_tbl_end; var++) {
         uint16_t len = strlen(var->name);
 
-        printf("  $\e[33m%s\e[m", var->name);
+        csh_printf(csh, "  $\e[33m%s\e[m", var->name);
 
         for (int k = len; k < longest_name; k++) {
-            printf(" ");
+            csh_printf(csh, " ");
         }
 
         char cr = var->attr & CSH_VAR_READ ? 'r' : '-';
         char cw = var->attr & CSH_VAR_WRITE ? 'w' : '-';
-        printf(" %c%c %3d\r\n", cr, cw, var->attr & CSH_VAR_SIZE);
+        csh_printf(csh, " %c%c %3d\r\n", cr, cw, var->attr & CSH_VAR_SIZE);
     }
 
     return 0;
