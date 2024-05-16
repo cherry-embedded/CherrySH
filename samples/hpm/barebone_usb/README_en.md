@@ -1,8 +1,8 @@
-# Cherry Shell FreeRTOS USB
+# Cherry Shell Barebone USB
 
 ## Overview
 
-The Cherry Shell FreeRTOS example project demonstrates the basic usage of shell in multi-thread mode. In this project, you need to connect via USB PORT, and the shell requires a login. The default password is 12345678. After entering the password and pressing Enter, you will enter the shell. You can use the "help" command to view the available commands and variables.
+The Cherry Shell Barebone example project demonstrates the basic usage of shell in bare-metal mode. In this project, you need to connect via USB PORT, and the shell requires a login. The default password is 12345678. After entering the password and pressing Enter, you will enter the shell. You can use the "help" command to view the available commands and variables.
 
 Please refrain from using USB PORT assistants and consider downloading and using [MobaXterm](https://mobaxterm.mobatek.net/download.html)
 

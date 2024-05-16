@@ -9,7 +9,7 @@ static chry_shell_t csh;
 static UART_Type *shell_uart = NULL;
 static bool login = false;
 static chry_ringbuffer_t shell_rb;
-static ATTR_PLACE_AT_NONCACHEABLE uint8_t mempool[256];
+static uint8_t mempool[1024];
 
 void shell_uart_isr(void)
 {
@@ -105,8 +105,8 @@ int shell_init(UART_Type *uart, bool need_login)
     csh_init.uid = 0;
     csh_init.user[0] = "cherry";
 
-    /*!< The port hash function is required, 
-         and the strcmp attribute is used weakly by default, 
+    /*!< The port hash function is required,
+         and the strcmp attribute is used weakly by default,
          int chry_shell_port_hash_strcmp(const char *hash, const char *str); */
     csh_init.hash[0] = "12345678"; /*!< If there is no password, set to NULL */
     csh_init.host = BOARD_NAME;

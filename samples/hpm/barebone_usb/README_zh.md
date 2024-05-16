@@ -1,8 +1,8 @@
-# Cherry Shell FreeRTOS USB
+# Cherry Shell Barebone USB
 
 ## 概述
 
-Cherry Shell FreeRTOS示例工程展示了shell的多线程模式基本使用。多线程模式下，命令的执行在独立的线程中，可以使用Ctrl+C中断命令执行。在这个工程中，需要连接 USB，shell默认需要登陆，密码为12345678。输入密码后回车，进入shell，输入help可以查看命令和变量。
+Cherry Shell Barebone示例工程展示了shell的裸机模式基本使用。在这个工程中，需要连接 USB，shell默认需要登陆，密码为12345678。输入密码后回车，进入shell，输入help可以查看命令和变量。
 请勿使用串口助手，推荐下载使用 [MobaXterm](https://mobaxterm.mobatek.net/download.html)
 
 ## 硬件设置
