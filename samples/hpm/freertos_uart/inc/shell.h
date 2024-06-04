@@ -7,6 +7,7 @@
 #ifndef SHELL_H
 #define SHELL_H
 
+#include "hpm_uart_drv.h"
 #include "csh.h"
 
 extern int shell_init(UART_Type *uart, bool need_login);
