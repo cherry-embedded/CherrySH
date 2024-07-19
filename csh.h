@@ -162,7 +162,7 @@
 #define CONFIG_READLINE_NOBLOCK        CONFIG_CSH_NOBLOCK
 #define CONFIG_READLINE_HELP           CONFIG_CSH_HELP
 
-#include "CherryRL/chry_readline.h"
+#include "cherryrl/chry_readline.h"
 #include "chry_shell.h"
 
 #if defined(__CC_ARM) || defined(__CLANG_ARM) || defined(__GNUC__) || defined(__ADSPBLACKFIN__)

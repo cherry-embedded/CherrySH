@@ -14,8 +14,6 @@
 #include <signal.h>
 #include "csh.h"
 
-#include "CherryRL/chry_readline.c"
-
 #if defined(CONFIG_CSH_DEBUG) && CONFIG_CSH_DEBUG
 #define CHRY_SHELL_PARAM_CHECK(__expr, __ret) \
     do {                                      \

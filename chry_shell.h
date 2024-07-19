@@ -14,7 +14,7 @@ extern "C" {
 #include <stdint.h>
 #include <setjmp.h>
 #include <signal.h>
-#include "CherryRL/chry_readline.h"
+#include "cherryrl/chry_readline.h"
 
 /*!< check maxlen */
 #if defined(CONFIG_CSH_MAXLEN_PATH) && CONFIG_CSH_MAXLEN_PATH

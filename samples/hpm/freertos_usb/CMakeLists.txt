@@ -24,6 +24,7 @@ sdk_inc(../../../)
 sdk_app_src(
     src/main.c
     src/shell.c
+    ../../../cherryrl/chry_readline.c
     ../../../chry_shell.c
     ../../../builtin/help.c
     ../../../builtin/shsize.c
