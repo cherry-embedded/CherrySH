@@ -35,7 +35,27 @@ CherryShell是一个专为嵌入式应用程序而设计的微型Shell。
 
 ## 移植
 
-以先楫半导体hpm5301evklite为例
+以先楫半导体hpm5301evklite为例。
+
+命令查找采用的是 gcc 的 section 功能，因此，我们需要先修改 linkerscript 文件，增加相关 section,举例 gcc ld 文件：
+
+```
+    .text : {
+    .....
+
+    . = ALIGN(4);
+    __fsymtab_start = .;
+    KEEP(*(FSymTab))
+    __fsymtab_end = .;
+    . = ALIGN(4);
+    __vsymtab_start = .;
+    KEEP(*(VSymTab))
+    __vsymtab_end = .;
+    . = ALIGN(4);
+    }
+
+```
+
 ``` c
 // 包含头文件
 #include "csh.h"

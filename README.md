@@ -37,6 +37,25 @@ CherryShell is a tiny shell specifically designed for embedded applications.
 
 Taking the example of the HPMicro hpm5301evklite board.
 
+Command lookup uses the GCC section, so we need to modify the linkerscript file to add the relevant section, for example in gcc ld:
+
+```
+    .text : {
+    .....
+
+    . = ALIGN(4);
+    __fsymtab_start = .;
+    KEEP(*(FSymTab))
+    __fsymtab_end = .;
+    . = ALIGN(4);
+    __vsymtab_start = .;
+    KEEP(*(VSymTab))
+    __vsymtab_end = .;
+    . = ALIGN(4);
+    }
+
+```
+
 ``` c
 // Include header file
 #include "csh.h"
