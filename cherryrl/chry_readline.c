@@ -1070,8 +1070,6 @@ static int chry_readline_seqexec(chry_readline_t *rl, uint8_t *c, uint16_t *pns)
         default:
             return chry_readline_seqexec_alt(rl, c, pns);
     }
-
-    return 0;
 }
 
 #if defined(CONFIG_READLINE_HISTORY) && CONFIG_READLINE_HISTORY
@@ -1723,7 +1721,6 @@ restart:
                     rl->ln.buff->size = 0;
                     return rl->ln.buff->pbuf;
                 }
-                break;
 
             case CHRY_READLINE_EXEC_EOF:
             case CHRY_READLINE_EXEC_SIGINT:
