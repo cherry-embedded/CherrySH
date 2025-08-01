@@ -36,8 +36,8 @@
 #endif
 #endif
 
-#define chry_shell_offsetof(type, member)          ((size_t) & (((type *)0)->member))
-#define chry_shell_container_of(ptr, type, member) ((type *)((char *)(ptr)-chry_shell_offsetof(type, member)))
+#define chry_shell_offsetof(type, member)          ((size_t)&(((type *)0)->member))
+#define chry_shell_container_of(ptr, type, member) ((type *)((char *)(ptr) - chry_shell_offsetof(type, member)))
 
 /*!< prompt segment index */
 #define CSH_PROMPT_SEG_USER 0
@@ -60,6 +60,14 @@ static chry_sighandler_t sighdl[CSH_SIGNAL_COUNT] = {
     chry_shell_port_default_handler,
     chry_shell_port_default_handler,
 };
+#endif
+
+#if defined(__CC_ARM)
+__CSH_WEAK size_t strnlen(const char *s, size_t maxlen)
+{
+    const char *p = (const char *)memchr(s, '\0', maxlen);
+    return (p == NULL) ? maxlen : (size_t)(p - s);
+}
 #endif
 
 /*****************************************************************************
@@ -1035,17 +1043,17 @@ char *chry_shell_getenv(chry_shell_t *csh, const char *name)
 *****************************************************************************/
 int csh_printf(chry_shell_t *csh, const char *fmt, ...)
 {
-  int     n;
-  char  shell_printf_buffer[CONFIG_CSH_PRINT_BUFFER_SIZE];
-  va_list args;
+    int n;
+    char shell_printf_buffer[CONFIG_CSH_PRINT_BUFFER_SIZE];
+    va_list args;
 
-  va_start (args, fmt);
-  n = vsnprintf(shell_printf_buffer, sizeof(shell_printf_buffer), fmt, args);
-  if (n > (int)sizeof(shell_printf_buffer)) {
-    csh->rl.sput(&csh->rl, shell_printf_buffer, sizeof(shell_printf_buffer));
-  } else if (n > 0) {
-    csh->rl.sput(&csh->rl, shell_printf_buffer, n);
-  }
-  va_end(args);
-  return n;
+    va_start(args, fmt);
+    n = vsnprintf(shell_printf_buffer, sizeof(shell_printf_buffer), fmt, args);
+    if (n > (int)sizeof(shell_printf_buffer)) {
+        csh->rl.sput(&csh->rl, shell_printf_buffer, sizeof(shell_printf_buffer));
+    } else if (n > 0) {
+        csh->rl.sput(&csh->rl, shell_printf_buffer, n);
+    }
+    va_end(args);
+    return n;
 }

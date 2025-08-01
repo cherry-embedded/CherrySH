@@ -178,12 +178,15 @@
 #if defined(__CC_ARM) || defined(__CLANG_ARM) || defined(__GNUC__) || defined(__ADSPBLACKFIN__)
 #define __CSH_SECTION(x) __attribute__((section(x)))
 #define __CSH_USED       __attribute__((used))
+#define __CSH_WEAK       __attribute__((weak))
 #elif defined(__IAR_SYSTEMS_ICC__)
 #define __CSH_SECTION(x) @x
 #define __CSH_USED       __root
+#define __CSH_WEAK       __weak
 #else
 #define __CSH_SECTION(x)
 #define __CSH_USED
+#define __CSH_WEAK
 #endif
 
 #if defined(CONFIG_CSH_USAGE_MSG) && CONFIG_CSH_USAGE_MSG
