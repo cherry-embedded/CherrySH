@@ -15,6 +15,16 @@
 #define CONFIG_CSH_DEBUG 0
 #endif
 
+/* enable short usage message */
+#ifndef CONFIG_CSH_USAGE_MSG
+#define CONFIG_CSH_USAGE_MSG 1
+#endif
+
+/* enable long help message */
+#ifndef CONFIG_CSH_HELP_MSG
+#define CONFIG_CSH_HELP_MSG 1
+#endif
+
 /*!< default row */
 #ifndef CONFIG_CSH_DFTROW
 #define CONFIG_CSH_DFTROW 25
@@ -176,6 +186,18 @@
 #define __CSH_USED
 #endif
 
+#if defined(CONFIG_CSH_USAGE_MSG) && CONFIG_CSH_USAGE_MSG
+#define __CSH_USAGE(x) x
+#else
+#define __CSH_USAGE(x) ((void)x, NULL)
+#endif
+
+#if defined(CONFIG_CSH_HELP_MSG) && CONFIG_CSH_HELP_MSG
+#define __CSH_HELP(x) x
+#else
+#define __CSH_HELP(x) ((void)x, NULL)
+#endif
+
 #if defined(CONFIG_CSH_SYMTAB) && CONFIG_CSH_SYMTAB
 
 #if defined(_MSC_VER)
@@ -192,13 +214,25 @@
 #if defined(CONFIG_CSH_SYMTAB) && CONFIG_CSH_SYMTAB
 #if defined(_MSC_VER)
 
-#define CSH_EXPORT_CALL(name, func, path)            \
-    __declspec(allocate("FSymTab$f"))                \
-        const chry_syscall_t __fsym_##name##func = { \
-            path,                                    \
-            #name,                                   \
-            (chry_syscall_func_t)func,               \
-        };
+#define CSH_EXPORT_CALL(name, func, path)        \
+    __declspec(allocate("FSymTab$f"))            \
+    const chry_syscall_t __fsym_##name##func = { \
+        path,                                    \
+        #name,                                   \
+        NULL,                                    \
+        NULL,                                    \
+        (chry_syscall_func_t)func,               \
+    };
+
+#define CSH_EXPORT_CALL_FULL(name, func, path, usage, help) \
+    __declspec(allocate("FSymTab$f"))                       \
+    const chry_syscall_t __fsym_##name##func = {            \
+        path,                                               \
+        #name,                                              \
+        __CSH_USAGE(usage),                                 \
+        __CSH_HELP(help),                                   \
+        (chry_syscall_func_t)func,                          \
+    };
 
 #pragma comment(linker, "/merge:FSymTab=mytext")
 
@@ -216,6 +250,18 @@
     __attribute__((used)) const chry_syscall_t __fsym_##name##func = { \
         path,                                                          \
         #name,                                                         \
+        NULL,                                                          \
+        NULL,                                                          \
+        (chry_syscall_func_t)func,                                     \
+    };
+
+#define CSH_EXPORT_CALL_FULL(name, func, path, usage, help)            \
+    __TI_CSH_PRAGMA(DATA_SECTION(__fsym_##name##func, "FSymTab"));     \
+    __attribute__((used)) const chry_syscall_t __fsym_##name##func = { \
+        path,                                                          \
+        #name,                                                         \
+        usage,                                                         \
+        help,                                                          \
         (chry_syscall_func_t)func,                                     \
     };
 
@@ -229,10 +275,23 @@
 
 #else
 
+#define CSH_LINENUMBER() __LINE__
+
 #define CSH_EXPORT_CALL(name, func, path)                                            \
     __CSH_USED const chry_syscall_t __fsym_##name##func __CSH_SECTION("FSymTab") = { \
         path,                                                                        \
         #name,                                                                       \
+        NULL,                                                                        \
+        NULL,                                                                        \
+        (chry_syscall_func_t)func,                                                   \
+    };
+
+#define CSH_EXPORT_CALL_FULL(name, func, path, usage, help)                          \
+    __CSH_USED const chry_syscall_t __fsym_##name##func __CSH_SECTION("FSymTab") = { \
+        path,                                                                        \
+        #name,                                                                       \
+        usage,                                                                       \
+        help,                                                                        \
         (chry_syscall_func_t)func,                                                   \
     };
 
@@ -246,6 +305,7 @@
 #endif
 #else
 #define CSH_EXPORT_CALL(name, func, path)
+#define CSH_EXPORT_CALL_FULL(name, func, path, usage, help)
 #define CSH_EXPORT_VAR(name, var, attr)
 #endif
 
@@ -306,6 +366,70 @@
 *****************************************************************************/
 #define CSH_CMD_EXPORT_PATH(func, name, path) \
     CSH_EXPORT_CALL(name, func, path)
+
+/*****************************************************************************
+* @brief        export csh command (default path "/bin")
+*
+* @param[in]    func        function pointer
+* @param[in]    usage       short usage message
+* @param[in]    help        lone help message
+*
+*****************************************************************************/
+#define CSH_CMD_EXPORT_FULL(func, usage, help) \
+    CSH_EXPORT_CALL_FULL(func, func, "/bin", usage, help)
+
+/*****************************************************************************
+* @brief        export csh command with alias  (default path "/bin" )
+*
+* @param[in]    func        function pointer
+* @param[in]    name        command name
+* @param[in]    usage       short usage message
+* @param[in]    help        lone help message
+*
+*****************************************************************************/
+#define CSH_CMD_EXPORT_ALIAS_FULL(func, name, usage, help) \
+    CSH_EXPORT_CALL_FULL(name, func, "/bin", usage, help)
+
+/*****************************************************************************
+* @brief        export csh command (default path "/sbin")
+*
+* @param[in]    func        function pointer
+* @param[in]    usage       short usage message
+* @param[in]    help        lone help message
+*
+*****************************************************************************/
+#define CSH_SCMD_EXPORT_FULL(func, usage, help) \
+    CSH_EXPORT_CALL_FULL(func, func, "/sbin", usage, help)
+
+/*****************************************************************************
+* @brief        export csh command with alias  (default path "/sbin" )
+*
+* @param[in]    func        function pointer
+* @param[in]    name        command name
+* @param[in]    usage       short usage message
+* @param[in]    help        lone help message
+*
+*****************************************************************************/
+#define CSH_SCMD_EXPORT_ALIAS_FULL(func, name, usage, help) \
+    CSH_EXPORT_CALL_FULL(name, func, "/sbin", usage, help)
+
+/*****************************************************************************
+* @brief        export csh command with path
+*
+* @param[in]    func        function pointer
+* @param[in]    name        command name
+* @param[in]    path        command path
+* @param[in]    usage       short usage message
+* @param[in]    help        lone help message
+*
+* @example      CSH_CMD_EXPORT_PATH(test_func1, test1, "/bin");       // ok
+*               CSH_CMD_EXPORT_PATH(test_func2, test2, "/sbin/test"); // ok
+*               CSH_CMD_EXPORT_PATH(test_func2, test2, "/sbin/test/");// error, cannot end with '/'
+*               CSH_CMD_EXPORT_PATH(test_func2, test2, "/");          // error, cannot be the root path "/"
+*
+*****************************************************************************/
+#define CSH_CMD_EXPORT_PATH_FULL(func, name, path, usage, help) \
+    CSH_EXPORT_CALL_FULL(name, func, path, usage, help)
 
 /*****************************************************************************
 * @brief        export csh read-only variable

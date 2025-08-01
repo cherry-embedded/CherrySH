@@ -66,6 +66,8 @@ typedef int (*chry_syscall_func_t)(int argc, char **argv);
 typedef struct {
     const char *path;
     const char *name;
+    const char *usage;
+    const char *help;
     chry_syscall_func_t func;
 } chry_syscall_t;
 
