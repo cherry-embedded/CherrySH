@@ -10,7 +10,7 @@
 #include <string.h>
 #include "csh.h"
 
-static void print_cmdline(const chry_shell_t *csh, const chry_syscall_t *call, uint32_t longest_name, uint32_t longest_path)
+static void print_cmdline(chry_shell_t *csh, const chry_syscall_t *call, uint32_t longest_name, uint32_t longest_path)
 {
     uint16_t len = strlen(call->name);
 
