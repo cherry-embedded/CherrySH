@@ -465,8 +465,12 @@ static int csh_exit(int argc, char **argv)
 
     return 0;
 }
-CSH_SCMD_EXPORT_ALIAS(csh_exit, exit, );
-
+CSH_SCMD_EXPORT_ALIAS_FULL(
+    csh_exit,
+    exit,
+    "logging out of the terminal",
+    "exit\r\n"
+    "    - logging out of the terminal\r\n");
 #define __ENV_PATH "/sbin:/bin"
 const char ENV_PATH[] = __ENV_PATH;
 CSH_RVAR_EXPORT(ENV_PATH, PATH, sizeof(__ENV_PATH));
