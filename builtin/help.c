@@ -40,7 +40,7 @@ static void print_cmdline(chry_shell_t *csh, const chry_syscall_t *call, uint32_
 }
 
 /*!< help    */
-static int help(int argc, char **argv)
+int csh_builtin_help(int argc, char **argv)
 {
     chry_shell_t *csh = (void *)argv[argc + 1];
     uint16_t longest_name;
@@ -117,7 +117,8 @@ static int help(int argc, char **argv)
     return 0;
 }
 
-CSH_SCMD_EXPORT_FULL(
+CSH_SCMD_EXPORT_ALIAS_FULL(
+    csh_builtin_help,
     help,
     "display command usage",
     "help\r\n"

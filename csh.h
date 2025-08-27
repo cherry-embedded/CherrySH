@@ -467,4 +467,16 @@
 #define CSH_RWVAR_EXPORT(var, name, size) \
     CSH_EXPORT_VAR(name, var, 0xc0000000 | (size))
 
+extern int csh_builtin_help(int argc, char **argv);
+
+#define CSH_CALL_HELP(name)             \
+    do {                                \
+        char *help_argv[4];             \
+        help_argv[0] = "help";          \
+        help_argv[1] = name;            \
+        help_argv[2] = NULL;            \
+        help_argv[3] = (void *)csh;     \
+        csh_builtin_help(2, help_argv); \
+    } while (0)
+
 #endif
