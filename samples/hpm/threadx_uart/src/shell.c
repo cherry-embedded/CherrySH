@@ -74,7 +74,9 @@ wait:
             tx_event_flags_set(&event_hdl, 0x02, TX_OR);
         }
         if (event & 0x04) {
-            chry_readline_edit_refresh(&csh.rl);
+            if (csh.rl.auto_refresh) {
+                chry_readline_edit_refresh(&csh.rl);
+            }
             tx_event_flags_set(&event_hdl, 0x08, TX_OR);
         }
 

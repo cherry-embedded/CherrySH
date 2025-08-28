@@ -228,7 +228,9 @@ wait:
             xEventGroupSetBits(event_hdl, 0x02);
         }
         if (event & 0x04) {
-            chry_readline_edit_refresh(&csh.rl);
+            if (csh.rl.auto_refresh) {
+                chry_readline_edit_refresh(&csh.rl);
+            }
             xEventGroupSetBits(event_hdl, 0x08);
         }
 
