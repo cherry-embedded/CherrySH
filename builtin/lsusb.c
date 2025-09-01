@@ -157,7 +157,7 @@ static void usbh_list_device(struct usbh_hub *hub, chry_shell_t *csh, bool astre
     }
 }
 
-static int lsusb(int argc, char **argv)
+int csh_lsusb(int argc, char **argv)
 {
     chry_shell_t *csh = (void *)argv[argc + 1];
     usb_slist_t *bus_list;
@@ -273,7 +273,8 @@ static int lsusb(int argc, char **argv)
     return 0;
 }
 
-CSH_SCMD_EXPORT_FULL(
+CSH_SCMD_EXPORT_ALIAS_FULL(
+    csh_lsusb,
     lsusb,
     "list USB Devices",
     "lsusb [options]\r\n"
